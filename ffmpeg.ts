@@ -1,12 +1,35 @@
 import ffmpeg from "fluent-ffmpeg";
-import { createWriteStream } from "node:fs";
+import { createWriteStream, unlinkSync } from "node:fs";
 
 const stream = createWriteStream("outputfile.divx");
 
-export const compress = () =>
-  ffmpeg()
-    .input("test.mov")
-    .input("creatorial.png")
-    .complexFilter(["overlay=(W-w)/2:(H-h)/2"])
-    .output("compressed.mov")
-    .run();
+export const compress = async () => {
+  return new Promise((resolve, reject) => {
+    ffmpeg()
+      .on("progress", (progress) => {
+        console.log(`[ffmpeg] ${JSON.stringify(progress)}`);
+      })
+      .on("error", (err) => {
+        console.log(`[ffmpeg] error: ${err.message}`);
+        reject(err);
+      })
+
+      .input("test.mov")
+      .input("creatorial.png")
+      .complexFilter([
+        "[1]format=rgba,colorchannelmixer=aa=0.5[logo]",
+        {
+          inputs: ["0", "logo"],
+          filter: "overlay",
+          options: { x: "(W-w)/2", y: "(H-h)/2" },
+        },
+      ])
+      .output("compressed.mov")
+      .on("end", () => {
+        console.log("[ffmpeg] finished");
+        unlinkSync("test.mov");
+        resolve(null);
+      })
+      .run();
+  });
+};
