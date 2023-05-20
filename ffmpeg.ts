@@ -1,13 +1,13 @@
 import ffmpeg from "fluent-ffmpeg";
 import { createWriteStream, unlinkSync } from "node:fs";
 import { path as ffmpegPath } from "@ffmpeg-installer/ffmpeg";
-ffmpeg.setFfmpegPath(ffmpegPath);
 
 const stream = createWriteStream("outputfile.divx");
 
 export const compress = async () => {
   return new Promise((resolve, reject) => {
     ffmpeg()
+      .setFfmpegPath(ffmpegPath)
       .on("progress", (progress) => {
         console.log(`[ffmpeg] ${JSON.stringify(progress)}`);
       })
