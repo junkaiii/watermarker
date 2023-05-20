@@ -13,14 +13,6 @@ export const fetchVideo = async (url: string) => {
   if (!response.ok || response.body === null)
     throw new Error(`unexpected response ${response.statusText}`);
 
-  // const file = createWriteStream("./download/test.mov");
-
-  // response.body.pipe(file);
-  // file.on("finish", () => {
-  //   file.close();
-  //   console.log("download completed");
-  // });
-
   await streamPipeline(response.body, createWriteStream("./test.mov"));
   console.log("download completed");
   await compress();
