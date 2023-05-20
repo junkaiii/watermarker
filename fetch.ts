@@ -9,13 +9,18 @@ export const fetchVideo = async (url: string) => {
   const streamPipeline = promisify(pipeline);
 
   const response = await fetch(url);
+  const fileName = url.split("\\")?.pop()?.split("/").pop();
+  if (!fileName) {
+    throw new Error("Invalid file name");
+  }
 
   if (!response.ok || response.body === null)
     throw new Error(`unexpected response ${response.statusText}`);
 
-  await streamPipeline(response.body, createWriteStream("./test.mov"));
+  console.log("kkj", fileName);
+  await streamPipeline(response.body, createWriteStream(`${fileName}`));
   console.log("download completed");
-  await compress();
+  const compressedFileName = (await compress(fileName)) as string;
   console.log("compress completed");
-  await uploadFile();
+  return await uploadFile(compressedFileName);
 };

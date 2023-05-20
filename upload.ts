@@ -1,7 +1,7 @@
 import * as ftp from "basic-ftp";
 import { unlink } from "node:fs";
 
-export const uploadFile = async () => {
+export const uploadFile = async (fileName: string) => {
   const client = new ftp.Client();
   client.ftp.verbose = true;
   try {
@@ -12,11 +12,12 @@ export const uploadFile = async () => {
     });
     console.log(await client.list());
     await client.uploadFrom(
-      "compressed.mov",
-      "./creatorial.ai/public_html/wp-content/uploads/video/compressed.mov"
+      fileName,
+      `./creatorial.ai/public_html/wp-content/uploads/video/${fileName}`
     );
     console.log("uploaded");
-    unlink("compressed.mov", () => client.close());
+    unlink(fileName, () => client.close());
+    return fileName;
   } catch (err) {
     console.log(err);
   }

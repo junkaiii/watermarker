@@ -21,11 +21,9 @@ app.post("/watermark", async (req, res) => {
   }
   // fetch the file from source
   try {
-    await fetchVideo(
-      // "https://creatorial.ai/wp-content/uploads/video/6460713fbe58a1.56943651_hd0992.mp4"
-      sourceUrl
-    );
-    res.status(200).send();
+    const result = await fetchVideo(sourceUrl);
+    const remoteDir = sourceUrl.substring(0, sourceUrl.lastIndexOf("/"));
+    res.status(200).send({ result: `${remoteDir}/${result}` });
   } catch (e) {
     console.log("something went wrong");
   }

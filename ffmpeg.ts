@@ -1,11 +1,11 @@
 import ffmpeg from "fluent-ffmpeg";
-import { createWriteStream, unlinkSync } from "node:fs";
+import { unlinkSync } from "node:fs";
+import { randomUUID } from "node:crypto";
 import { path as ffmpegPath } from "@ffmpeg-installer/ffmpeg";
 
-const stream = createWriteStream("outputfile.divx");
-
-export const compress = async () => {
+export const compress = async (fileName: string) => {
   return new Promise((resolve, reject) => {
+    const compressedFileName = `${randomUUID()}-watermarked-${fileName}`;
     ffmpeg()
       .setFfmpegPath(ffmpegPath)
       .on("progress", (progress) => {
@@ -15,8 +15,7 @@ export const compress = async () => {
         console.log(`[ffmpeg] error: ${err.message}`);
         reject(err);
       })
-
-      .input("test.mov")
+      .input(`${fileName}`)
       .input("creatorial.png")
       .complexFilter([
         "[1]format=rgba,colorchannelmixer=aa=0.5[logo]",
@@ -26,11 +25,11 @@ export const compress = async () => {
           options: { x: "(W-w)/2", y: "(H-h)/2" },
         },
       ])
-      .output("compressed.mov")
+      .output(compressedFileName)
       .on("end", () => {
         console.log("[ffmpeg] finished");
-        unlinkSync("test.mov");
-        resolve(null);
+        unlinkSync(fileName);
+        resolve(compressedFileName);
       })
       .run();
   });
