@@ -1,20 +1,26 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import { fetchVideo } from "./fetch";
-import bodyParser = require("body-parser");
+import bodyParser from "body-parser";
+import cors from "cors";
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT;
+const corsOptions = {
+  origin: "https://creatorial.ai",
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
 
+app.use(cors());
 app.use(bodyParser.json());
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
 });
 
-app.post("/watermark", async (req, res) => {
+app.post("/watermark", cors(corsOptions), async (req, res) => {
   const sourceUrl = req.body.sourceUrl;
   if (!!sourceUrl) {
     res.status(400);
